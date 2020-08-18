@@ -1,9 +1,14 @@
 const express = require('express');
+const expressLayouts = require('express-ejs-layouts');
 
 const mainRoute = require('./routes/index');
 const usersRoutes = require('./routes/users');
 
 const app = express();
+
+// EJS
+app.use(expressLayouts);
+app.set('view engine', 'ejs');
 
 // Routes
 app.use('/', mainRoute);
