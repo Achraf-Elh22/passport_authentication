@@ -21,6 +21,9 @@ mongoose
 app.use(expressLayouts);
 app.set('view engine', 'ejs');
 
+// Body Parser
+app.use(express.urlencoded({ extended: false }));
+
 // Routes
 app.use('/', mainRoute);
 app.use('/users', usersRoutes);
