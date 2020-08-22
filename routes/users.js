@@ -1,4 +1,7 @@
 const express = require('express');
+const bcrypt = require('bcryptjs');
+
+const User = require('../models/user');
 
 const router = express.Router();
 
@@ -28,9 +31,8 @@ router.post('/register', (req, res) => {
   if (password.length < 6) {
     errors.push({ msg: 'Password should at least 6 charactere' });
   }
-
   if (errors.length > 0) {
-    res.render('register', {
+    return res.render('register', {
       errors,
       name,
       email,
@@ -38,8 +40,40 @@ router.post('/register', (req, res) => {
       password2,
     });
   }
+  // Checking if User exist
+  User.findOne({ email })
+    .then((user) => {
+      if (user) {
+        errors.push({ msg: 'Email is already registered' });
+        res.render('register', {
+          errors,
+          name,
+          email,
+          password,
+          password2,
+        });
+      } else {
+        const newUser = new User({
+          name,
+          email,
+          password,
+        });
 
-  res.send('pass');
+        bcrypt.genSalt(10, (err, salt) =>
+          bcrypt.hash(newUser.password, salt, (err, hash) => {
+            if (err) throw err;
+            newUser.password = hash;
+            newUser
+              .save()
+              .then(() => {
+                res.redirect('/users/login');
+              })
+              .catch((err) => console.log(err));
+          })
+        );
+      }
+    })
+    .catch((err) => console.log(err));
 });
 
 module.exports = router;
