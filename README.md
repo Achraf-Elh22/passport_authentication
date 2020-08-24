@@ -23,4 +23,4 @@ $ npm run dev
 Open "config/keys.js" and add your MongoDB URI, local or Atlas
 
 
-Inspired from bradtraversy. His project in github   
+Inspired from bradtraversy. His project in github https://github.com/bradtraversy/node_passport_login
