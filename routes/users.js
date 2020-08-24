@@ -1,38 +1,39 @@
-const express = require('express');
-const bcrypt = require('bcryptjs');
+const express = require("express");
+const bcrypt = require("bcryptjs");
+const passport = require("passport");
 
-const User = require('../models/user');
+const User = require("../models/user");
 
 const router = express.Router();
 
-router.get('/login', (req, res) => {
-  res.render('login');
+router.get("/login", (req, res) => {
+  res.render("login");
 });
 
-router.get('/register', (req, res) => {
-  res.render('register');
+router.get("/register", (req, res) => {
+  res.render("register");
 });
 
-router.post('/register', (req, res) => {
+router.post("/register", (req, res) => {
   const { name, email, password, password2 } = req.body;
   let errors = [];
 
   // check the required fields
   if (!name || !email || !password || !password2) {
-    errors.push({ msg: 'please fill in all the fields' });
+    errors.push({ msg: "please fill in all the fields" });
   }
 
   // check if the password and password2 match
   if (password !== password2) {
-    errors.push({ msg: 'Passwords dont match' });
+    errors.push({ msg: "Passwords dont match" });
   }
 
   // Check password length
   if (password.length < 6) {
-    errors.push({ msg: 'Password should at least 6 charactere' });
+    errors.push({ msg: "Password should at least 6 charactere" });
   }
   if (errors.length > 0) {
-    return res.render('register', {
+    return res.render("register", {
       errors,
       name,
       email,
@@ -44,8 +45,8 @@ router.post('/register', (req, res) => {
   User.findOne({ email })
     .then((user) => {
       if (user) {
-        errors.push({ msg: 'Email is already registered' });
-        res.render('register', {
+        errors.push({ msg: "Email is already registered" });
+        res.render("register", {
           errors,
           name,
           email,
@@ -66,7 +67,11 @@ router.post('/register', (req, res) => {
             newUser
               .save()
               .then(() => {
-                res.redirect('/users/login');
+                req.flash(
+                  "success_msg",
+                  "You are now registered you can log in !"
+                );
+                res.redirect("/users/login");
               })
               .catch((err) => console.log(err));
           })
@@ -74,6 +79,14 @@ router.post('/register', (req, res) => {
       }
     })
     .catch((err) => console.log(err));
+});
+
+router.post("/login", (req, res, next) => {
+  passport.authenticate("local", {
+    successRedirect: "/dashboard",
+    failureRedirect: "/users/login",
+    failureFlash: true,
+  })(req, res, next);
 });
 
 module.exports = router;
